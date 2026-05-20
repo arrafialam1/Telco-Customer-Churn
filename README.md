@@ -1,4 +1,4 @@
-# Predicting Customer Churn in the Telecommunications Industry
+# Telecom Customer Churn Prediction
 
 ## 📋 Project Overview
 
@@ -11,9 +11,9 @@ This repository contains the code and supporting materials for a complete end-to
 ## 📂 Repository Structure
 
 ```
-├── Telco_customer_churn.ipynb   # Main Jupyter notebook (all code)
-├── Telco-Customer-Churn.csv       # Dataset (see source below)
-└── README.md                      # This file
+├── Telco_churn_analysis.ipynb   # Main Jupyter notebook (all code)
+├── Telco-Customer-Churn.csv      # Dataset (see source below)
+└── README.md                     # This file
 ```
 
 ---
@@ -101,23 +101,50 @@ The 21 columns span four categories:
 
 ## ⚙️ Methodology
 
+### Notebook Structure
+
+| Section | Content |
+|---|---|
+| **Section 1** — Imports & Setup | Libraries and global settings |
+| **Section 2** — EDA, Cleaning & Preprocessing | Dataset inspection, missing values, cleaning, feature engineering, encoding, visualisations (Figures 1 & 2) |
+| **Section 3** — Model Development & Tuning | Model selection, baseline architecture, cross-validation setup, hyperparameter tuning |
+| **Section 4** — Results & Evaluation | Test set metrics, confusion matrices, ROC curves, feature importance, learning curves (Figures 3 & 4) |
+
 ### Preprocessing Pipeline
-1. Drop `customerID` (non-informative)
-2. Median imputation for 11 missing `TotalCharges` values
-3. Map `SeniorCitizen` 0/1 → No/Yes
-4. Feature engineering: `AvgMonthlySpend` and `CustomerSegment`
+1. Drop `customerID` (non-informative identifier)
+2. Median imputation for 11 missing `TotalCharges` values (median preferred over mean due to right-skewed distribution)
+3. Map `SeniorCitizen` 0/1 → No/Yes for consistent one-hot encoding
+4. Feature engineering: `AvgMonthlySpend` (`TotalCharges / (tenure + 1)`) and `CustomerSegment` (tenure bands: New 0–12m, Mid-term 13–36m, Loyal 37–72m)
 5. One-hot encoding of all categorical features (53 total features after encoding)
-6. 80/20 stratified train/test split (random state = 42)
-7. `StandardScaler` fitted on training data only (Logistic Regression only)
+6. 80/20 stratified train/test split (random state = 42) — preserves 26.5% churn ratio in both partitions
+7. `StandardScaler` fitted on training data only, applied to Logistic Regression inputs only (tree-based models are scale-invariant); prevents data leakage
 
 ### Models Evaluated
 
-| Model | Type | Tuning |
+| Model | Type | Tuning | Best Parameters | CV AUC |
+|---|---|---|---|---|
+| Logistic Regression | Parametric baseline | Default (`max_iter=1000`) | — | — |
+| Decision Tree | Tree baseline | Default parameters | — | — |
+| Random Forest | Bagging ensemble | GridSearchCV (5-fold, 240 fits) | `n_estimators=200`, `max_depth=10`, `max_features='log2'`, `min_samples_leaf=2` | 0.8446 ± 0.0098 |
+| Gradient Boosting (HistGBM) | Boosting ensemble | GridSearchCV (5-fold, 180 fits) | `max_iter=100`, `learning_rate=0.05`, `max_depth=4`, `l2_regularization=0.0` | 0.8492 ± 0.0108 |
+
+### Key Analytical Findings
+
+**Correlation Analysis (Figure 2):**
+- Strongest positive correlates (churn risk): `MonthlyCharges` (r = 0.193), `PaperlessBilling` (r = 0.192), `AvgMonthlySpend` (engineered feature, moderate positive)
+- Strongest negative correlates (retention): `Contract_Two-year` (r = −0.397), `tenure` (r = −0.352)
+
+**Feature Importance — Random Forest (Figure 4):**
+Top 5 most predictive features by Mean Decrease in Impurity: `tenure`, `TotalCharges`, `Contract_Month-to-month`, `MonthlyCharges`, `AvgMonthlySpend` — validating the feature engineering step.
+
+### Figures Generated
+
+| Figure | File | Content |
 |---|---|---|
-| Logistic Regression | Parametric baseline | Default parameters |
-| Decision Tree | Tree baseline | Default parameters |
-| Random Forest | Bagging ensemble | GridSearchCV (5-fold, 240 fits) |
-| Gradient Boosting (HistGBM) | Boosting ensemble | GridSearchCV (5-fold, 180 fits) |
+| Figure 1 | `fig1_eda.png` | 6-panel EDA: churn distribution, churn by contract type, churn by internet service, tenure/charge distributions by churn, scatter of tenure vs monthly charges |
+| Figure 2 | `fig2_correlation.png` | Pearson correlation of all features with the binary Churn target |
+| Figure 3 | `fig3_evaluation.png` | Confusion matrices for all 4 models, overlaid ROC curves, grouped metric bar chart |
+| Figure 4 | `fig4_importance_learning.png` | Top 15 feature importances (Random Forest) and learning curves (Gradient Boosting) |
 
 ### Results Summary
 
@@ -135,7 +162,7 @@ The 21 columns span four categories:
 ## 🛠️ How to Run
 
 ### Option 1 — Google Colab (Recommended)
-1. Open `Telco_churn_assessment.ipynb` in [Google Colab](https://colab.research.google.com/)
+1. Open `Telco_churn_analysis.ipynb` in [Google Colab](https://colab.research.google.com/)
 2. Upload `Telco-Customer-Churn.csv` when prompted in Section 2
 3. Run all cells in order (`Runtime → Run all`)
 
@@ -149,7 +176,7 @@ cd [your-repo-name]
 pip install numpy pandas matplotlib seaborn scikit-learn
 
 # Launch Jupyter
-jupyter notebook Telco_churn_assessment.ipynb
+jupyter notebook Telco_churn_analysis.ipynb
 ```
 
 > **Note:** Update `DATA_PATH` in Section 2 of the notebook to match your local CSV file path if running locally.
