@@ -169,15 +169,6 @@ scikit-learn>= 1.1
 
 ---
 
-## 🗂️ Notebook Structure
-
-Section 1 — Imports & Setup 
-Section 2 — EDA, Data Cleaning & Preprocessing
-Section 3 — Model Development & Hyperparameter Tuning 
-Section 4 — Results & Evaluation
-
----
-
 ## ⚠️ Ethical Considerations
 
 - The dataset is **fully anonymised** — no personally identifiable information is present
