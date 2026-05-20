@@ -87,16 +87,6 @@ The 21 columns span four categories:
 |---|---|---|
 | `Churn` | Categorical | Whether the customer churned in the last month (Yes / No) |
 
-### Key Statistics
-
-| Feature | Churned Customers | Retained Customers |
-|---|---|---|
-| Mean Tenure | 18.0 months | 37.6 months |
-| Mean Monthly Charges | $74.4 | $61.3 |
-| Month-to-month Contract | ~42% churn rate | — |
-| Fiber Optic Internet | ~42% churn rate | — |
-| Two-year Contract | ~3% churn rate | — |
-
 ---
 
 ## ⚙️ Methodology
@@ -132,7 +122,7 @@ The 21 columns span four categories:
 
 **Correlation Analysis (Figure 2):**
 - Strongest positive correlates (churn risk): `MonthlyCharges` (r = 0.193), `PaperlessBilling` (r = 0.192), `AvgMonthlySpend` (engineered feature, moderate positive)
-- Strongest negative correlates (retention): `Contract_Two-year` (r = −0.397), `tenure` (r = −0.352)
+- Strongest negative correlates (retention): `Contract` (r = −0.397), `tenure` (r = −0.352)
 
 **Feature Importance — Random Forest (Figure 4):**
 Top 5 most predictive features by Mean Decrease in Impurity: `tenure`, `TotalCharges`, `Contract_Month-to-month`, `MonthlyCharges`, `AvgMonthlySpend` — validating the feature engineering step.
